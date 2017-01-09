@@ -15,9 +15,14 @@ OMNIFOCUS_DB_PATH = os.path.expanduser(
 
 def say(*msg, lang=DEFAULT_LANGUAGE):
     """
+    Say a message out loud.
+
     Arugments:
         *msg (str[]): Message to say.
         lang (str): ISO 639-1 language code.
+
+    Raises:
+        Exception: If language not supported.
     """
     # TODO: Asynchronous queue of mp3s to play
     print("say:", *msg)
