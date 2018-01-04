@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+import sys
+
+from gtts import gTTS
+from subprocess import Popen
+from tempfile import NamedTemporaryFile
+
+# supported lanaguages: https://github.com/pndurette/gTTS#supported-languages
+DEFAULT_LANGUAGE="en-nz"
+
+
+def say(*msg, lang=DEFAULT_LANGUAGE):
+    """
+    Say a message out loud.
+
+    Arugments:
+        *msg (str[]): Message to say.
+        lang (str): ISO 639-1 language code.
+
+    Raises:
+        Exception: If language not supported.
+    """
+    # TODO: Asynchronous queue of mp3s to play
+    tts = gTTS(text=" ".join(str(x) for x in msg), lang=lang)
+    with NamedTemporaryFile(prefix="omnifocus", suffix=".mp3") as tmpfile:
+        tts.save(tmpfile.name)
+        process = Popen(['afplay', tmpfile.name])
+        _, _ = process.communicate()
+
+
+def textinput(question, require_answer=False):
+    """Ask a question and return user's answer.
+
+    question (str): a string that is presented to the user
+    require_answer (bool, optional): whether to repeat the question if the user
+        does not provide a response
+    """
+    while True:
+        sys.stdout.write(question)
+        if sys.version_info >= (3, 0):
+            answer = input().lower()
+        else:
+            answer = raw_input().lower()
+
+        if not (require_answer and answer.strip() == ''):
+            return answer
+
+
+def main():
+    command = None
+    while command != "exit":
+        if command:
+            say(command)
+        command = textinput("> ", require_answer=True)
+
+
+if __name__ == "__main__":
+    main()
