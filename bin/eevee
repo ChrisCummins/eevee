@@ -1,49 +1,50 @@
 #!/usr/bin/env python3
 import os
-import sqlite3
-
-from gtts import gTTS
-from subprocess import Popen
 from tempfile import NamedTemporaryFile
 
+import sqlite3
+from gtts import gTTS
+from subprocess import Popen
+
 # supported lanaguages: https://github.com/pndurette/gTTS#supported-languages
-DEFAULT_LANGUAGE="en-au"
+DEFAULT_LANGUAGE = "en-au"
 
 OMNIFOCUS_DB_PATH = os.path.expanduser(
     "~/Library/Containers/com.omnigroup.OmniFocus2/Data/Library/"
     "Caches/com.omnigroup.OmniFocus2/OmniFocusDatabase2")
 
+
 def say(*msg, lang=DEFAULT_LANGUAGE):
-    """
-    Say a message out loud.
+  """
+  Say a message out loud.
 
-    Arugments:
-        *msg (str[]): Message to say.
-        lang (str): ISO 639-1 language code.
+  Arugments:
+      *msg (str[]): Message to say.
+      lang (str): ISO 639-1 language code.
 
-    Raises:
-        Exception: If language not supported.
-    """
-    # TODO: Asynchronous queue of mp3s to play
-    print("say:", *msg)
-    tts = gTTS(text=" ".join(str(x) for x in msg), lang=lang)
-    with NamedTemporaryFile(prefix="omnifocus", suffix=".mp3") as tmpfile:
-        tts.save(tmpfile.name)
-        process = Popen(['afplay', tmpfile.name])
-        _, _ = process.communicate()
+  Raises:
+      Exception: If language not supported.
+  """
+  # TODO: Asynchronous queue of mp3s to play
+  print("say:", *msg)
+  tts = gTTS(text=" ".join(str(x) for x in msg), lang=lang)
+  with NamedTemporaryFile(prefix="omnifocus", suffix=".mp3") as tmpfile:
+    tts.save(tmpfile.name)
+    process = Popen(['afplay', tmpfile.name])
+    _, _ = process.communicate()
 
 
 def main():
-    db = sqlite3.connect(OMNIFOCUS_DB_PATH)
-    c = db.cursor()
+  db = sqlite3.connect(OMNIFOCUS_DB_PATH)
+  c = db.cursor()
 
-    c.execute("SELECT context.name,task.name FROM Task "
-              "LEFT JOIN context ON task.context=context.persistentIdentifier "
-              "ORDER BY RANDOM() LIMIT 20""")
-    for i, row in enumerate(c.fetchall()):
-        context, task = row
-        say('Task {i} in Context "{context}" is "{task}"'.format(**vars()))
+  c.execute("SELECT context.name,task.name FROM Task "
+            "LEFT JOIN context ON task.context=context.persistentIdentifier "
+            "ORDER BY RANDOM() LIMIT 20""")
+  for i, row in enumerate(c.fetchall()):
+    context, task = row
+    say('Task {i} in Context "{context}" is "{task}"'.format(**vars()))
 
 
 if __name__ == "__main__":
-    main()
+  main()
